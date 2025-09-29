@@ -104,6 +104,15 @@
                                 <input type="text" id="char-special" placeholder="Special Stat (e.g., Pyromancy)" class="w-full bg-gray-650 p-3 rounded-md placeholder-gray-450">
                                 <input type="text" id="char-weapon" placeholder="Weapon (e.g., Greatsword)" class="w-full bg-gray-650 p-3 rounded-md placeholder-gray-450">
                             </div>
+                             <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Alignment</label>
+                                <input type="range" id="char-alignment" min="0" max="100" value="50" class="w-full">
+                                <div class="flex justify-between text-xs text-gray-400 px-1">
+                                    <span>Evil</span>
+                                    <span>Neutral</span>
+                                    <span>Good</span>
+                                </div>
+                            </div>
                             <button type="submit" id="save-character-btn" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">Save Character</button>
                         </form>
                     </div>
@@ -288,6 +297,13 @@ const firebaseConfig = {
             document.getElementById('character-editing-view').classList.remove('hidden');
             document.getElementById('character-editing-view').classList.add('grid');
         }
+        
+        function getAlignmentText(value) {
+            const numValue = parseInt(value || 50, 10);
+            if (numValue < 34) return 'Evil';
+            if (numValue > 66) return 'Good';
+            return 'Neutral';
+        }
 
         function listenToCharacters() {
             onSnapshot(collection(db, `artifacts/${appId}/public/data/characters`), snapshot => {
@@ -321,7 +337,11 @@ const firebaseConfig = {
                            <div><label class="text-xs text-gray-400">Mana/Strength</label><input type="number" value="${char.mana}" data-id="${charId}" data-stat="mana" class="char-stat w-full bg-gray-650 p-1 rounded text-center"></div>
                            <div><label class="text-xs text-gray-400">Armor/Durability</label><input type="number" value="${char.ac}" data-id="${charId}" data-stat="ac" class="char-stat w-full bg-gray-650 p-1 rounded text-center"></div>
                         </div>
-                        <details><summary class="cursor-pointer text-sm">Inventory</summary>
+                        <div class="mt-3">
+                            <label class="text-xs text-gray-400">Alignment: <span class="font-bold text-gray-200">${getAlignmentText(char.alignment)}</span></label>
+                            <input type="range" min="0" max="100" value="${char.alignment || 50}" data-id="${charId}" data-stat="alignment" class="char-stat w-full mt-1">
+                        </div>
+                        <details class="mt-3"><summary class="cursor-pointer text-sm">Inventory</summary>
                             <div class="space-y-1 mt-2">${inventoryHtml}</div>
                             <div class="flex mt-2"><input type="text" placeholder="Add item..." class="add-inventory-item-dm-input w-full bg-gray-600 p-1 rounded-l-md text-xs"><button class="add-inventory-item-dm-btn bg-violet-600 hover:bg-violet-700 text-white font-bold px-2 rounded-r-lg text-xs" data-id="${charId}">+</button></div>
                         </details>
@@ -382,7 +402,9 @@ const firebaseConfig = {
 
             const characterData = {
                 name: document.getElementById('char-name').value, race: document.getElementById('char-race').value, class: document.getElementById('char-class').value, description: document.getElementById('char-description').value,
-                hp, maxHp: hp, mana, maxMana: mana, ac, specialStat: document.getElementById('char-special').value, weapon: document.getElementById('char-weapon').value, inventory: characterDocSnap.exists() ? characterDocSnap.data().inventory : []
+                hp, maxHp: hp, mana, maxMana: mana, ac, specialStat: document.getElementById('char-special').value, weapon: document.getElementById('char-weapon').value, 
+                alignment: document.getElementById('char-alignment').value,
+                inventory: characterDocSnap.exists() ? characterDocSnap.data().inventory : []
             };
             if (!characterData.name) return showNotification("Character name is required.", true);
             
@@ -404,7 +426,7 @@ const firebaseConfig = {
         const saveStoryboard = (e) => saveDoc(`artifacts/${appId}/public/data/story/main`, e.target.value);
         const saveDmNotes = (e) => saveDoc(`artifacts/${appId}/public/data/dmNotes/main`, e.target.value);
 
-        const updateStat = (collectionName, id, stat, value) => updateDoc(doc(db, `artifacts/${appId}/public/data/${collectionName}`, id), { [stat]: parseInt(value) });
+        const updateStat = (collectionName, id, stat, value) => updateDoc(doc(db, `artifacts/${appId}/public/data/${collectionName}`, id), { [stat]: value });
         
         async function handleImageUpload(file, localStorageKey) {
             if (!file) return;
@@ -465,7 +487,7 @@ const firebaseConfig = {
                 localStorage.removeItem(`image-scene-${appId}`);
                 showNotification("All campaign data has been reset.");
                 window.location.reload();
-            } catch (error) {
+            } catch (error)
                 console.error("Error resetting data:", error);
                 showNotification("Failed to reset data.", true);
             }
@@ -532,5 +554,4 @@ const firebaseConfig = {
     </script>
 </body>
 </html>
-
 
