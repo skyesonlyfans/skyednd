@@ -70,10 +70,23 @@
         <main id="main-content">
             <!-- Player View -->
             <div id="player-view">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <!-- Character Selection -->
+                <div id="character-selection-view" class="max-w-md mx-auto bg-gray-750 p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-semibold mb-4 text-center text-violet-300">Choose Your Hero</h2>
+                    <div id="character-selection-list" class="space-y-2 mb-4">
+                        <p class="text-center text-gray-400">Loading characters...</p>
+                    </div>
+                    <button id="create-new-char-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">Create New Character</button>
+                </div>
+
+                <!-- Character Creation/Editing -->
+                <div id="character-editing-view" class="hidden grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
                     <!-- Character Sheet -->
                     <div class="bg-gray-750 p-6 rounded-lg shadow-lg lg:col-span-1">
-                        <h2 class="text-2xl font-semibold mb-4 text-violet-300 border-b border-gray-650 pb-2">Create Your Hero</h2>
+                        <div class="flex justify-between items-center mb-4 border-b border-gray-650 pb-2">
+                            <h2 class="text-2xl font-semibold text-violet-300">Character Sheet</h2>
+                            <button id="back-to-selection-btn" class="text-sm text-violet-400 hover:underline">&larr; Back to selection</button>
+                        </div>
                         <form id="character-sheet-form" class="space-y-4">
                              <input type="text" id="char-name" placeholder="Character Name" class="w-full bg-gray-650 p-3 rounded-md placeholder-gray-450 border border-transparent focus:ring-2 focus:ring-violet-500 focus:outline-none">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -119,7 +132,7 @@
                     </div>
 
                     <!-- Center Column -->
-                     <div class="lg:col-span-1 space-y-8">
+                     <div class="lg-col-span-1 space-y-8">
                         <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">Active Storyboard</h2><div class="space-y-4"><button id="init-story-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Get a Story Prompt</button><textarea id="story-output" rows="20" class="w-full bg-gray-850 p-3 rounded-md border border-gray-650">Your story begins here...</textarea></div></div>
                         <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">Scene Display</h2><div class="space-y-4"><div id="scenery-container" class="w-full h-64 bg-gray-850 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-650"><span class="text-gray-400">Upload a scene...</span></div><label for="scenery-upload" class="file-input-label bg-green-600 text-white font-bold py-3 px-4 rounded-lg">Upload Scene</label><input type="file" id="scenery-upload" class="hidden-file-input" accept="image/*"></div></div>
                     </div>
@@ -154,15 +167,24 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, getDoc, arrayUnion, arrayRemove, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        
-const firebaseConfig = {
-  apiKey: "AIzaSyDwh33WelKfN-XXuEfrIq4gZVFypNKo3n0",
-  authDomain: "skyednd-9917c.firebaseapp.com",
-  projectId: "skyednd-9917c",
-  storageBucket: "skyednd-9917c.firebasestorage.app",
-  messagingSenderId: "597391046245",
-  appId: "1:597391046245:web:9ad25bd70e55018c42388c"
-};
+        // Firebase Storage is no longer used.
+
+        // --- Vercel Deployment: Firebase Configuration ---
+        // 1. Create a Firebase project at https://console.firebase.google.com/
+        // 2. In your project, go to Project Settings (gear icon) -> General tab.
+        // 3. Under "Your apps", create a new Web app ('</>').
+        // 4. After creating the app, copy the firebaseConfig object provided and paste it here.
+        // 5. In the Firebase console, go to Authentication -> Sign-in method and enable "Anonymous".
+        // 6. Go to Firestore Database -> Rules and set them to allow reads and writes (for development).
+        //    NOTE: Firebase Storage is no longer required for this version.
+        const firebaseConfig = {
+          apiKey: "YOUR_API_KEY",
+          authDomain: "YOUR_AUTH_DOMAIN",
+          projectId: "YOUR_PROJECT_ID",
+          storageBucket: "YOUR_STORAGE_BUCKET", // Optional, no longer used for images
+          messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+          appId: "YOUR_APP_ID"
+        };
 
         const appId = 'dnd-campaign-1';
         let db, auth, userId, currentCharacterId = null;
@@ -184,8 +206,12 @@ const firebaseConfig = {
                 onAuthStateChanged(auth, user => {
                     if (user) {
                         userId = user.uid;
-                        currentCharacterId = localStorage.getItem(`dnd-char-id-${appId}`) || userId;
-                        listenToCharacters(); listenToNpcs(); listenToStoryboard(); listenToScene(); listenToDmNotes();
+                        // Don't auto-load a character. User must select one.
+                        listenToCharacters(); 
+                        listenToNpcs(); 
+                        listenToStoryboard(); 
+                        listenToScene(); 
+                        listenToDmNotes();
                     }
                 });
 
@@ -240,23 +266,45 @@ const firebaseConfig = {
 
         // --- View & Data Listeners ---
         function switchView(view) {
-            document.getElementById('player-view').classList.toggle('hidden', view !== 'player');
-            document.getElementById('dm-view').classList.toggle('hidden', view === 'player');
-            document.getElementById('player-view-btn').classList.toggle('bg-violet-600', view === 'player');
-            document.getElementById('dm-view-btn').classList.toggle('bg-violet-600', view !== 'player');
+            if (view === 'player') {
+                document.getElementById('character-selection-view').style.display = 'block';
+                document.getElementById('character-editing-view').classList.add('hidden');
+                document.getElementById('character-editing-view').classList.remove('grid');
+                document.getElementById('dm-view').classList.add('hidden');
+                document.getElementById('player-view-btn').classList.add('bg-violet-600');
+                document.getElementById('dm-view-btn').classList.remove('bg-violet-600');
+            } else { // dm view
+                document.getElementById('character-selection-view').style.display = 'none';
+                document.getElementById('character-editing-view').classList.add('hidden');
+                 document.getElementById('character-editing-view').classList.remove('grid');
+                document.getElementById('dm-view').classList.remove('hidden');
+                document.getElementById('player-view-btn').classList.remove('bg-violet-600');
+                document.getElementById('dm-view-btn').classList.add('bg-violet-600');
+            }
+        }
+
+        function showEditingView() {
+            document.getElementById('character-selection-view').style.display = 'none';
+            document.getElementById('character-editing-view').classList.remove('hidden');
+            document.getElementById('character-editing-view').classList.add('grid');
         }
 
         function listenToCharacters() {
             onSnapshot(collection(db, `artifacts/${appId}/public/data/characters`), snapshot => {
                 const hud = document.getElementById('characters-hud');
+                const selectionList = document.getElementById('character-selection-list');
+                
                 hud.innerHTML = snapshot.empty ? '<p class="text-gray-400">No characters have joined.</p>' : '';
+                selectionList.innerHTML = snapshot.empty ? '<p class="text-center text-gray-400">No characters yet. Create one!</p>' : '';
+
                 snapshot.forEach(docSnap => {
                     const char = docSnap.data();
                     const charId = docSnap.id;
                     const charImgData = localStorage.getItem(`image-char-${charId}`);
+                    
+                    // Populate DM HUD
                     const avatarHtml = charImgData ? `<img src="${charImgData}" class="h-12 w-12 rounded-full object-cover cursor-pointer char-avatar">` : `<div class="h-12 w-12 rounded-full bg-gray-600 flex items-center justify-center text-xs text-center p-1">No Img</div>`;
                     const inventoryHtml = char.inventory?.length ? char.inventory.map((item, index) => `<div class="inventory-item text-xs"><span class="truncate pr-2" title="${item}">${item}</span><button class="delete-inventory-item-dm-btn delete-btn" data-id="${charId}" data-index="${index}">&times;</button></div>`).join('') : '<p class="text-xs text-gray-400">Empty</p>';
-                    
                     hud.innerHTML += `<div class="bg-gray-850 p-4 rounded-lg">
                         <div class="flex items-start gap-4 mb-3">
                             ${avatarHtml}
@@ -278,7 +326,18 @@ const firebaseConfig = {
                             <div class="flex mt-2"><input type="text" placeholder="Add item..." class="add-inventory-item-dm-input w-full bg-gray-600 p-1 rounded-l-md text-xs"><button class="add-inventory-item-dm-btn bg-violet-600 hover:bg-violet-700 text-white font-bold px-2 rounded-r-lg text-xs" data-id="${charId}">+</button></div>
                         </details>
                     </div>`;
-                    if (charId === currentCharacterId) updatePlayerForm(char);
+
+                    // Populate Player Selection List
+                    const selectionButton = document.createElement('button');
+                    selectionButton.className = 'w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition duration-300';
+                    selectionButton.textContent = `${char.name} - ${char.race} ${char.class}`;
+                    selectionButton.dataset.charId = charId;
+                    selectionButton.onclick = () => {
+                        currentCharacterId = charId;
+                        updatePlayerForm(char);
+                        showEditingView();
+                    };
+                    selectionList.appendChild(selectionButton);
                 });
             });
         }
@@ -304,23 +363,30 @@ const firebaseConfig = {
         }
         
         function updatePlayerForm(char) {
+            document.getElementById('character-sheet-form').reset();
             Object.keys(char).forEach(key => { const el = document.getElementById(`char-${key}`); if (el) el.value = char[key]; });
             const charImgData = localStorage.getItem(`image-char-${currentCharacterId}`);
             document.getElementById('illustration-container').innerHTML = charImgData ? `<img src="${charImgData}" class="w-full h-full object-cover rounded-lg">` : `<span class="text-gray-400">Your hero awaits...</span>`;
         }
         
         async function saveCharacter(e) {
-            e.preventDefault(); if (!userId) return showNotification("Not authenticated.", true);
+            e.preventDefault(); 
+            if (!userId) return showNotification("Not authenticated.", true);
+            if (!currentCharacterId) return showNotification("No character selected.", true);
+
             const hp = parseInt(document.getElementById('char-hp').value), mana = parseInt(document.getElementById('char-mana').value), ac = parseInt(document.getElementById('char-ac').value);
             if (hp + mana + ac !== 300) return showNotification("Stats must sum to 300.", true);
-            const characterDoc = await getDoc(doc(db, `artifacts/${appId}/public/data/characters`, currentCharacterId));
+            
+            const characterDocRef = doc(db, `artifacts/${appId}/public/data/characters`, currentCharacterId);
+            const characterDocSnap = await getDoc(characterDocRef);
+
             const characterData = {
                 name: document.getElementById('char-name').value, race: document.getElementById('char-race').value, class: document.getElementById('char-class').value, description: document.getElementById('char-description').value,
-                hp, maxHp: hp, mana, maxMana: mana, ac, specialStat: document.getElementById('char-special').value, weapon: document.getElementById('char-weapon').value, inventory: characterDoc.exists() ? characterDoc.data().inventory : []
+                hp, maxHp: hp, mana, maxMana: mana, ac, specialStat: document.getElementById('char-special').value, weapon: document.getElementById('char-weapon').value, inventory: characterDocSnap.exists() ? characterDocSnap.data().inventory : []
             };
             if (!characterData.name) return showNotification("Character name is required.", true);
-            localStorage.setItem(`dnd-char-id-${appId}`, currentCharacterId);
-            await setDoc(doc(db, `artifacts/${appId}/public/data/characters`, currentCharacterId), characterData, { merge: true });
+            
+            await setDoc(characterDocRef, characterData, { merge: true });
             showNotification(`${characterData.name} saved!`);
         }
 
@@ -397,8 +463,6 @@ const firebaseConfig = {
                      await deleteDoc(doc(db, `artifacts/${appId}/public/data/${docPath}`));
                 }
                 localStorage.removeItem(`image-scene-${appId}`);
-                localStorage.removeItem(`dnd-char-id-${appId}`);
-
                 showNotification("All campaign data has been reset.");
                 window.location.reload();
             } catch (error) {
@@ -410,6 +474,14 @@ const firebaseConfig = {
         // --- Event Listeners ---
         document.getElementById('player-view-btn').addEventListener('click', () => switchView('player'));
         document.getElementById('dm-view-btn').addEventListener('click', () => switchView('dm'));
+        document.getElementById('back-to-selection-btn').addEventListener('click', () => switchView('player'));
+        
+        document.getElementById('create-new-char-btn').addEventListener('click', () => {
+            currentCharacterId = crypto.randomUUID(); // Generate a new ID for the character
+            updatePlayerForm({}); // Clear the form
+            showEditingView();
+        });
+
         document.getElementById('character-sheet-form').addEventListener('submit', saveCharacter);
         document.getElementById('add-npc-form').addEventListener('submit', saveNpc);
         document.getElementById('story-output').addEventListener('blur', saveStoryboard);
