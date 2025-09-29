@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skye's DnD UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #E0E0E0;
+        }
+        .bg-gray-850 { background-color: #1A202C; }
+        .bg-gray-750 { background-color: #2D3748; }
+        .bg-gray-650 { background-color: #4A5568; }
+        .border-gray-650 { border-color: #4A5568; }
+        .placeholder-gray-450::placeholder { color: #A0AEC0; }
+        .file-input-label {
+            cursor: pointer;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .file-input-label:hover {
+            background-color: #38a169; /* A slightly darker green */
+        }
+        .hidden-file-input {
+            display: none;
+        }
+        .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            background-color: #4A5568;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #f56565;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-850">
+
+    <div id="app-container" class="min-h-screen p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-violet-400">Skye's DnD UI</h1>
+            <p class="text-gray-400">The ultimate toolkit for immersive adventures.</p>
+        </header>
+
+        <!-- View Toggle -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-gray-750 p-1 rounded-lg flex space-x-1">
+                <button id="player-view-btn" class="px-4 py-2 rounded-md text-white bg-violet-600">Player</button>
+                <button id="dm-view-btn" class="px-4 py-2 rounded-md text-gray-300">Dungeon Master</button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <main id="main-content">
+            <!-- Player View -->
+            <div id="player-view">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                    <!-- Character Sheet -->
+                    <div class="bg-gray-750 p-6 rounded-lg shadow-lg lg:col-span-1">
+                        <h2 class="text-2xl font-semibold mb-4 text-violet-300 border-b border-gray-650 pb-2">Create Your Hero</h2>
+                        <form id="character-sheet-form" class="space-y-4">
+                             <input type="text" id="char-name" placeholder="Character Name" class="w-full bg-gray-650 p-3 rounded-md placeholder-gray-450 border border-transparent focus:ring-2 focus:ring-violet-500 focus:outline-none">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <input type="text" id="char-race" placeholder="Race" class="w-full bg-gray-650 p-3 rounded-md placeholder-gray-450 border border-transparent focus:ring-2 focus:ring-violet-500 focus:outline-none">
+                                <input type="text" id="char-class" placeholder="Class" class="w-full bg-gray-650 p-3 rounded-md placeholder-gray-450 border border-transparent focus:ring-2 focus:ring-violet-500 focus:outline-none">
+                            </div>
+                            <textarea id="char-description" placeholder="Appearance & Backstory" rows="4" class="w-full bg-gray-650 p-3 rounded-md placeholder-gray-450 border border-transparent focus:ring-2 focus:ring-violet-500 focus:outline-none"></textarea>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                <div><label class="block text-sm font-medium text-gray-300 mb-1">HP</label><input type="number" id="char-hp" value="100" class="w-full bg-gray-650 p-3 rounded-md"></div>
+                                <div><label class="block text-sm font-medium text-gray-300 mb-1">Mana</label><input type="number" id="char-mana" value="100" class="w-full bg-gray-650 p-3 rounded-md"></div>
+                                <div><label class="block text-sm font-medium text-gray-300 mb-1">Armor</label><input type="number" id="char-ac" value="100" class="w-full bg-gray-650 p-3 rounded-md"></div>
+                            </div>
+                            <p class="text-xs text-gray-400 text-center -mt-2">Distribute 300 points between HP, Mana, and Armor.</p>
+                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <input type="text" id="char-special" placeholder="Special Stat (e.g., Pyromancy)" class="w-full bg-gray-650 p-3 rounded-md placeholder-gray-450">
+                                <input type="text" id="char-weapon" placeholder="Weapon (e.g., Greatsword)" class="w-full bg-gray-650 p-3 rounded-md placeholder-gray-450">
+                            </div>
+                            <button type="submit" id="save-character-btn" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">Save Character</button>
+                        </form>
+                    </div>
+
+                     <!-- Character Illustration -->
+                    <div class="bg-gray-750 p-6 rounded-lg shadow-lg lg:col-span-2">
+                        <h2 class="text-2xl font-semibold mb-4 text-violet-300 w-full text-center">Character Illustration</h2>
+                        <div id="illustration-container" class="w-full h-80 bg-gray-850 rounded-lg flex items-center justify-center mb-4 border-2 border-dashed border-gray-650">
+                            <span class="text-gray-400">Your hero awaits...</span>
+                        </div>
+                        <label for="char-image-upload" class="file-input-label bg-green-600 text-white font-bold py-3 px-4 rounded-lg">Upload Portrait</label>
+                        <input type="file" id="char-image-upload" class="hidden-file-input" accept="image/*">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dungeon Master View -->
+            <div id="dm-view" class="hidden">
+                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                    <!-- Left Column -->
+                    <div class="lg:col-span-1 space-y-8">
+                        <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">Player Characters</h2><div id="characters-hud" class="space-y-4"></div></div>
+                        <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">NPCs</h2><div id="npcs-hud" class="space-y-4 mb-4"></div><h3 class="text-lg font-semibold mt-6 mb-2">Add New NPC</h3><form id="add-npc-form" class="space-y-3"><input type="text" id="npc-name" placeholder="NPC Name" class="w-full bg-gray-650 p-2 rounded-md"><input type="number" id="npc-hp" placeholder="HP" class="w-full bg-gray-650 p-2 rounded-md"><textarea id="npc-notes" placeholder="Notes..." rows="3" class="w-full bg-gray-650 p-2 rounded-md"></textarea><button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Add NPC</button></form></div>
+                        <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">DM Notes</h2><textarea id="dm-notes-textarea" placeholder="Campaign notes..." rows="10" class="w-full bg-gray-650 p-3 rounded-md"></textarea></div>
+                        <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-red-400">Danger Zone</h2><button id="reset-all-data-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg">Reset All Campaign Data</button><p class="text-xs text-gray-400 mt-2">This action is irreversible and will delete all characters, NPCs, story, and notes.</p></div>
+                    </div>
+
+                    <!-- Center Column -->
+                     <div class="lg:col-span-1 space-y-8">
+                        <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">Active Storyboard</h2><div class="space-y-4"><button id="init-story-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Get a Story Prompt</button><textarea id="story-output" rows="20" class="w-full bg-gray-850 p-3 rounded-md border border-gray-650">Your story begins here...</textarea></div></div>
+                        <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">Scene Display</h2><div class="space-y-4"><div id="scenery-container" class="w-full h-64 bg-gray-850 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-650"><span class="text-gray-400">Upload a scene...</span></div><label for="scenery-upload" class="file-input-label bg-green-600 text-white font-bold py-3 px-4 rounded-lg">Upload Scene</label><input type="file" id="scenery-upload" class="hidden-file-input" accept="image/*"></div></div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="lg:col-span-1"><div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">Dice Tower</h2><div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4"><button class="dice-btn bg-gray-650 hover:bg-gray-600 p-4 rounded-lg" data-die="4">d4</button><button class="dice-btn bg-gray-650 hover:bg-gray-600 p-4 rounded-lg" data-die="6">d6</button><button class="dice-btn bg-gray-650 hover:bg-gray-600 p-4 rounded-lg" data-die="8">d8</button><button class="dice-btn bg-gray-650 hover:bg-gray-600 p-4 rounded-lg" data-die="10">d10</button><button class="dice-btn bg-gray-650 hover:bg-gray-600 p-4 rounded-lg" data-die="12">d12</button><button class="dice-btn bg-gray-650 hover:bg-gray-600 p-4 rounded-lg" data-die="20">d20</button></div><div id="dice-result" class="bg-gray-850 p-4 rounded-lg text-center h-24 flex items-center justify-center"><span class="text-4xl font-bold">--</span></div><div id="dice-history" class="mt-4 h-48 overflow-y-auto bg-gray-850 p-2 rounded"><p class="text-gray-400 text-sm text-center">Roll history...</p></div></div></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50"><div class="bg-gray-750 p-8 rounded-lg text-center"><div class="lds-dual-ring mx-auto"></div><p id="loading-text" class="text-lg mt-4">Uploading...</p></div></div>
+    <div id="notification-toast" class="fixed bottom-5 right-5 p-4 rounded-lg text-white z-[100] opacity-0 transition-opacity duration-300"></div>
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50">
+        <div class="bg-gray-750 p-8 rounded-lg text-center shadow-xl">
+            <h3 id="confirm-modal-title" class="text-lg font-bold mb-4">Are you sure?</h3>
+            <p id="confirm-modal-text" class="text-sm text-gray-300 mb-6">This action cannot be undone.</p>
+            <div class="flex justify-center gap-4">
+                <button id="confirm-modal-cancel-btn" class="px-6 py-2 rounded bg-gray-600 hover:bg-gray-500 transition-colors">Cancel</button>
+                <button id="confirm-modal-confirm-btn" class="px-6 py-2 rounded bg-red-600 hover:bg-red-700 transition-colors">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, getDoc, arrayUnion, arrayRemove, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'dnd-ui-default';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO", authDomain: "DEMO", projectId: "DEMO" };
+        let db, auth, userId, storage, currentCharacterId = null;
+
+        const storyPrompts = [
+            "The players awaken in a cart with no memory, a strange tattoo on their hands being their only clue...",
+            "A local lord hires the party to investigate why the dead are rising from the town cemetery...",
+            "The players find a treasure map on a dying courier, but they are not the only ones who know of it...",
+            "A sudden magical plague sweeps through the capital, and the party is tasked with finding a mythical cure...",
+            "The party is framed for a crime they didn't commit and must clear their names while on the run...",
+            "A child's ghost haunts the local inn, begging the players to find its lost toy, which holds a darker secret...",
+            "The players are hired to guard a caravan traveling through dangerous territory, but the real threat is already inside...",
+            "A powerful magical artifact is shattered, and the party must race against a doomsday cult to retrieve the pieces...",
+            "The annual Grand Tournament is in town, offering fame and fortune, but its organizers have a sinister agenda...",
+            "An ancient dragon, long thought dead, has reappeared, and the party is the only thing standing in its way..."
+        ];
+
+        async function initialize() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app); auth = getAuth(app); storage = getStorage(app);
+                onAuthStateChanged(auth, user => {
+                    if (user) {
+                        userId = user.uid;
+                        currentCharacterId = localStorage.getItem(`dnd-char-id-${appId}`) || userId;
+                        listenToCharacters(); listenToNpcs(); listenToStoryboard(); listenToScene(); listenToDmNotes();
+                    }
+                });
+                if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token);
+                else await signInAnonymously(auth);
+            } catch (e) { console.error("Firebase init failed:", e); showNotification("Connection to database failed.", true); }
+        }
+
+        function showNotification(message, isError = false) {
+            const toast = document.getElementById('notification-toast');
+            toast.textContent = message;
+            toast.style.backgroundColor = isError ? '#E53E3E' : '#38A169';
+            toast.classList.add('opacity-100');
+            setTimeout(() => toast.classList.remove('opacity-100'), 4000);
+        }
+        
+        let confirmCallback = null;
+        function showConfirmModal(title, text, onConfirm) {
+            document.getElementById('confirm-modal-title').textContent = title;
+            document.getElementById('confirm-modal-text').textContent = text;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+            document.getElementById('confirm-modal').classList.add('flex');
+            confirmCallback = onConfirm;
+        }
+
+        function hideConfirmModal() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            document.getElementById('confirm-modal').classList.remove('flex');
+            confirmCallback = null;
+        }
+        
+        document.getElementById('confirm-modal-confirm-btn').addEventListener('click', () => {
+            if(confirmCallback) confirmCallback();
+            hideConfirmModal();
+        });
+        document.getElementById('confirm-modal-cancel-btn').addEventListener('click', hideConfirmModal);
+
+
+        // --- View & Data Listeners ---
+        function switchView(view) {
+            document.getElementById('player-view').classList.toggle('hidden', view !== 'player');
+            document.getElementById('dm-view').classList.toggle('hidden', view === 'player');
+            document.getElementById('player-view-btn').classList.toggle('bg-violet-600', view === 'player');
+            document.getElementById('dm-view-btn').classList.toggle('bg-violet-600', view !== 'player');
+        }
+
+        function listenToCharacters() {
+            onSnapshot(collection(db, `artifacts/${appId}/public/data/characters`), snapshot => {
+                const hud = document.getElementById('characters-hud');
+                hud.innerHTML = snapshot.empty ? '<p class="text-gray-400">No characters have joined.</p>' : '';
+                snapshot.forEach(docSnap => {
+                    const char = docSnap.data();
+                    const charId = docSnap.id;
+                    const inventoryHtml = char.inventory?.length ? char.inventory.map((item, index) => `<div class="inventory-item text-xs"><span class="truncate pr-2" title="${item}">${item}</span><button class="delete-inventory-item-dm-btn delete-btn" data-id="${charId}" data-index="${index}">&times;</button></div>`).join('') : '<p class="text-xs text-gray-400">Empty</p>';
+                    hud.innerHTML += `<div class="bg-gray-850 p-4 rounded-lg">
+                        <h3 class="font-bold text-lg text-violet-400">${char.name} <span class="text-sm font-normal text-gray-400">- ${char.race} ${char.class}</span></h3>
+                        <div class="grid grid-cols-3 gap-2 my-2">
+                           <div><label class="text-xs text-gray-400">HP</label><input type="number" value="${char.hp}" data-id="${charId}" data-stat="hp" class="char-stat w-full bg-gray-650 p-1 rounded text-center"></div>
+                           <div><label class="text-xs text-gray-400">Mana/Strength</label><input type="number" value="${char.mana}" data-id="${charId}" data-stat="mana" class="char-stat w-full bg-gray-650 p-1 rounded text-center"></div>
+                           <div><label class="text-xs text-gray-400">Armor/Durability</label><input type="number" value="${char.ac}" data-id="${charId}" data-stat="ac" class="char-stat w-full bg-gray-650 p-1 rounded text-center"></div>
+                        </div>
+                        <details><summary class="cursor-pointer text-sm">Inventory</summary>
+                            <div class="space-y-1 mt-2">${inventoryHtml}</div>
+                            <div class="flex mt-2"><input type="text" placeholder="Add item..." class="add-inventory-item-dm-input w-full bg-gray-600 p-1 rounded-l-md text-xs"><button class="add-inventory-item-dm-btn bg-violet-600 hover:bg-violet-700 text-white font-bold px-2 rounded-r-lg text-xs" data-id="${charId}">+</button></div>
+                        </details>
+                    </div>`;
+                    if (charId === currentCharacterId) updatePlayerForm(char);
+                });
+            });
+        }
+        
+        function listenToNpcs() {
+            onSnapshot(collection(db, `artifacts/${appId}/public/data/npcs`), snapshot => {
+                const hud = document.getElementById('npcs-hud');
+                hud.innerHTML = snapshot.empty ? '<p class="text-gray-400">No NPCs created.</p>' : '';
+                snapshot.forEach(docSnap => {
+                    const npc = docSnap.data();
+                    hud.innerHTML += `<div class="bg-gray-850 p-3 rounded-lg"><div class="flex justify-between items-start"><div><h4 class="font-bold">${npc.name}</h4><p class="text-xs text-gray-400">${npc.notes}</p></div><button class="delete-npc-btn text-red-500 text-xl" data-id="${docSnap.id}">&times;</button></div><div class="flex items-center gap-2 mt-2">HP: <input type="number" value="${npc.hp}" data-id="${docSnap.id}" data-stat="hp" class="npc-stat w-20 bg-gray-650 p-1 rounded text-center"></div></div>`;
+                });
+            });
+        }
+        
+        const listenToDoc = (path, elId) => onSnapshot(doc(db, path), docSnap => { if(docSnap.exists()) document.getElementById(elId).value = docSnap.data().content; });
+        const listenToStoryboard = () => listenToDoc(`artifacts/${appId}/public/data/story/main`, 'story-output');
+        const listenToDmNotes = () => listenToDoc(`artifacts/${appId}/public/data/dmNotes/main`, 'dm-notes-textarea');
+        
+        function listenToScene() {
+            onSnapshot(doc(db, `artifacts/${appId}/public/data/scene/main`), docSnap => {
+                const url = docSnap.exists() ? docSnap.data().url : null;
+                document.getElementById('scenery-container').innerHTML = url ? `<img src="${url}" class="w-full h-full object-contain rounded-lg">` : `<span class="text-gray-400">Upload a scene...</span>`;
+            });
+        }
+        
+        function updatePlayerForm(char) {
+            Object.keys(char).forEach(key => { const el = document.getElementById(`char-${key}`); if (el) el.value = char[key]; });
+            document.getElementById('illustration-container').innerHTML = char.imageUrl ? `<img src="${char.imageUrl}" class="w-full h-full object-cover rounded-lg">` : `<span class="text-gray-400">Your hero awaits...</span>`;
+        }
+        
+        async function saveCharacter(e) {
+            e.preventDefault(); if (!userId) return showNotification("Not authenticated.", true);
+            const hp = parseInt(document.getElementById('char-hp').value), mana = parseInt(document.getElementById('char-mana').value), ac = parseInt(document.getElementById('char-ac').value);
+            if (hp + mana + ac !== 300) return showNotification("Stats must sum to 300.", true);
+            const characterDoc = await getDoc(doc(db, `artifacts/${appId}/public/data/characters`, currentCharacterId));
+            const characterData = {
+                name: document.getElementById('char-name').value, race: document.getElementById('char-race').value, class: document.getElementById('char-class').value, description: document.getElementById('char-description').value,
+                hp, maxHp: hp, mana, maxMana: mana, ac, specialStat: document.getElementById('char-special').value, weapon: document.getElementById('char-weapon').value, inventory: characterDoc.exists() ? characterDoc.data().inventory : []
+            };
+            if (!characterData.name) return showNotification("Character name is required.", true);
+            localStorage.setItem(`dnd-char-id-${appId}`, currentCharacterId);
+            await setDoc(doc(db, `artifacts/${appId}/public/data/characters`, currentCharacterId), characterData, { merge: true });
+            showNotification(`${characterData.name} saved!`);
+        }
+
+        async function saveNpc(e) {
+            e.preventDefault();
+            const form = e.target;
+            const npcData = { name: form.elements['npc-name'].value, hp: form.elements['npc-hp'].value, notes: form.elements['npc-notes'].value };
+            if (!npcData.name) return showNotification("NPC name is required.", true);
+            await setDoc(doc(collection(db, `artifacts/${appId}/public/data/npcs`)), npcData);
+            form.reset();
+            showNotification("NPC added.");
+        }
+        
+        const saveDoc = (path, content) => setDoc(doc(db, path), { content }, { merge: true });
+        const saveStoryboard = (e) => saveDoc(`artifacts/${appId}/public/data/story/main`, e.target.value);
+        const saveDmNotes = (e) => saveDoc(`artifacts/${appId}/public/data/dmNotes/main`, e.target.value);
+
+        const updateStat = (collectionName, id, stat, value) => updateDoc(doc(db, `artifacts/${appId}/public/data/${collectionName}`, id), { [stat]: parseInt(value) });
+        
+        async function handleImageUpload(file, storagePath, docPath) {
+            if (!file) return;
+            document.getElementById('loading-modal').classList.remove('hidden');
+            const storageRef = ref(storage, storagePath);
+            await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(storageRef);
+            await setDoc(doc(db, docPath), { url: downloadURL }, { merge: true });
+            if(docPath.includes('characters')) await updateDoc(doc(db, docPath), { imageUrl: downloadURL });
+            document.getElementById('loading-modal').classList.add('hidden');
+            showNotification("Image uploaded!");
+        }
+        
+        async function addInventoryItem(characterId, item) {
+            if (item) {
+                await updateDoc(doc(db, `artifacts/${appId}/public/data/characters`, characterId), { inventory: arrayUnion(item) });
+            }
+        }
+        
+        async function removeInventoryItem(characterId, index) {
+            const characterDoc = await getDoc(doc(db, `artifacts/${appId}/public/data/characters`, characterId));
+            const inventory = characterDoc.data().inventory;
+            if (inventory && inventory.length > index) {
+                await updateDoc(doc(db, `artifacts/${appId}/public/data/characters`, characterId), { inventory: arrayRemove(inventory[index]) });
+            }
+        }
+
+        async function resetAllData() {
+            console.log("Resetting all data...");
+            try {
+                const collectionsToDelete = ['characters', 'npcs'];
+                for (const coll of collectionsToDelete) {
+                    const collRef = collection(db, `artifacts/${appId}/public/data/${coll}`);
+                    const snapshot = await getDocs(collRef);
+                    for (const docSnap of snapshot.docs) {
+                        await deleteDoc(docSnap.ref);
+                    }
+                }
+                const docsToDelete = ['story/main', 'scene/main', 'dmNotes/main'];
+                for (const docPath of docsToDelete) {
+                     await deleteDoc(doc(db, `artifacts/${appId}/public/data/${docPath}`));
+                }
+                showNotification("All campaign data has been reset.");
+            } catch (error) {
+                console.error("Error resetting data:", error);
+                showNotification("Failed to reset data.", true);
+            }
+        }
+        
+        // --- Event Listeners ---
+        document.getElementById('player-view-btn').addEventListener('click', () => switchView('player'));
+        document.getElementById('dm-view-btn').addEventListener('click', () => switchView('dm'));
+        document.getElementById('character-sheet-form').addEventListener('submit', saveCharacter);
+        document.getElementById('add-npc-form').addEventListener('submit', saveNpc);
+        document.getElementById('story-output').addEventListener('blur', saveStoryboard);
+        document.getElementById('dm-notes-textarea').addEventListener('blur', saveDmNotes);
+        document.getElementById('char-image-upload').addEventListener('change', e => handleImageUpload(e.target.files[0], `public/${appId}/characters/${currentCharacterId}/portrait.png`, `artifacts/${appId}/public/data/characters/${currentCharacterId}`));
+        document.getElementById('scenery-upload').addEventListener('change', e => handleImageUpload(e.target.files[0], `public/${appId}/scene/main.png`, `artifacts/${appId}/public/data/scene/main`));
+        document.getElementById('init-story-btn').addEventListener('click', () => { document.getElementById('story-output').value = storyPrompts[Math.floor(Math.random() * storyPrompts.length)]; saveStoryboard({target: document.getElementById('story-output')}); });
+        document.getElementById('reset-all-data-btn').addEventListener('click', () => {
+            showConfirmModal('Reset All Data?', 'This will permanently delete all characters, NPCs, and story progress.', resetAllData);
+        });
+
+        document.querySelectorAll('.dice-btn').forEach(b => b.addEventListener('click', e => {
+            const result = Math.floor(Math.random() * e.target.dataset.die) + 1;
+            document.getElementById('dice-result').innerHTML = `<span class="text-4xl font-bold">${result}</span>`;
+            document.getElementById('dice-history').insertAdjacentHTML('afterbegin', `<p class="text-sm text-center border-b border-gray-700 py-1">d${e.target.dataset.die}: ${result}</p>`);
+        }));
+        
+        document.getElementById('dm-view').addEventListener('change', e => {
+            const target = e.target;
+            if (target.classList.contains('char-stat') || target.classList.contains('npc-stat')) {
+                const collectionName = target.classList.contains('char-stat') ? 'characters' : 'npcs';
+                updateStat(collectionName, target.dataset.id, target.dataset.stat, target.value);
+            }
+        });
+
+        document.getElementById('dm-view').addEventListener('click', e => {
+            const target = e.target;
+             if (target.classList.contains('delete-npc-btn')) {
+                showConfirmModal('Delete NPC?', 'Are you sure you want to delete this NPC?', async () => {
+                    await deleteDoc(doc(db, `artifacts/${appId}/public/data/npcs`, target.dataset.id));
+                    showNotification("NPC deleted.");
+                });
+            } else if (target.classList.contains('add-inventory-item-dm-btn')) {
+                const input = target.previousElementSibling;
+                const item = input.value.trim();
+                addInventoryItem(target.dataset.id, item);
+                input.value = '';
+            } else if (target.classList.contains('delete-inventory-item-dm-btn')) {
+                removeInventoryItem(target.dataset.id, target.dataset.index);
+            }
+        });
+
+        initialize();
+    </script>
+</body>
+</html>
+
