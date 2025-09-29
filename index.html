@@ -25,7 +25,7 @@
             transition: background-color 0.3s;
         }
         .file-input-label:hover {
-            background-color: #38a169; /* A slightly darker green */
+            background-color: #38a169;
         }
         .hidden-file-input {
             display: none;
@@ -46,7 +46,7 @@
             font-size: 1rem;
         }
         .char-avatar {
-            border: 2px solid #8B5CF6; /* violet-500 */
+            border: 2px solid #8B5CF6;
         }
     </style>
 </head>
@@ -58,7 +58,6 @@
             <p class="text-gray-400">The ultimate toolkit for immersive adventures.</p>
         </header>
 
-        <!-- View Toggle -->
         <div class="flex justify-center mb-8">
             <div class="bg-gray-750 p-1 rounded-lg flex space-x-1">
                 <button id="player-view-btn" class="px-4 py-2 rounded-md text-white bg-violet-600">Player</button>
@@ -66,11 +65,8 @@
             </div>
         </div>
         
-        <!-- Main Content -->
         <main id="main-content">
-            <!-- Player View -->
             <div id="player-view">
-                <!-- Character Selection -->
                 <div id="character-selection-view" class="max-w-md mx-auto bg-gray-750 p-6 rounded-lg shadow-lg">
                     <h2 class="text-2xl font-semibold mb-4 text-center text-violet-300">Choose Your Hero</h2>
                     <div id="character-selection-list" class="space-y-2 mb-4">
@@ -79,9 +75,7 @@
                     <button id="create-new-char-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">Create New Character</button>
                 </div>
 
-                <!-- Character Creation/Editing -->
                 <div id="character-editing-view" class="hidden grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                    <!-- Character Sheet -->
                     <div class="bg-gray-750 p-6 rounded-lg shadow-lg lg:col-span-1">
                         <div class="flex justify-between items-center mb-4 border-b border-gray-650 pb-2">
                             <h2 class="text-2xl font-semibold text-violet-300">Character Sheet</h2>
@@ -117,7 +111,6 @@
                         </form>
                     </div>
 
-                     <!-- Character Illustration -->
                     <div class="bg-gray-750 p-6 rounded-lg shadow-lg lg:col-span-2">
                         <h2 class="text-2xl font-semibold mb-4 text-violet-300 w-full text-center">Character Illustration</h2>
                         <div id="illustration-container" class="w-full h-80 bg-gray-850 rounded-lg flex items-center justify-center mb-4 border-2 border-dashed border-gray-650">
@@ -129,10 +122,8 @@
                 </div>
             </div>
 
-            <!-- Dungeon Master View -->
             <div id="dm-view" class="hidden">
                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                    <!-- Left Column -->
                     <div class="lg:col-span-1 space-y-8">
                         <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">Player Characters</h2><div id="characters-hud" class="space-y-4"></div></div>
                         <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">NPCs</h2><div id="npcs-hud" class="space-y-4 mb-4"></div><h3 class="text-lg font-semibold mt-6 mb-2">Add New NPC</h3><form id="add-npc-form" class="space-y-3"><input type="text" id="npc-name" placeholder="NPC Name" class="w-full bg-gray-650 p-2 rounded-md"><input type="number" id="npc-hp" placeholder="HP" class="w-full bg-gray-650 p-2 rounded-md"><textarea id="npc-notes" placeholder="Notes..." rows="3" class="w-full bg-gray-650 p-2 rounded-md"></textarea><button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Add NPC</button></form></div>
@@ -140,20 +131,17 @@
                         <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-red-400">Danger Zone</h2><button id="reset-all-data-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg">Reset All Campaign Data</button><p class="text-xs text-gray-400 mt-2">This action is irreversible and will delete all characters, NPCs, story, and notes.</p></div>
                     </div>
 
-                    <!-- Center Column -->
                      <div class="lg-col-span-1 space-y-8">
                         <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">Active Storyboard</h2><div class="space-y-4"><button id="init-story-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Get a Story Prompt</button><textarea id="story-output" rows="20" class="w-full bg-gray-850 p-3 rounded-md border border-gray-650">Your story begins here...</textarea></div></div>
                         <div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">Scene Display</h2><div class="space-y-4"><div id="scenery-container" class="w-full h-64 bg-gray-850 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-650"><span class="text-gray-400">Upload a scene...</span></div><label for="scenery-upload" class="file-input-label bg-green-600 text-white font-bold py-3 px-4 rounded-lg">Upload Scene</label><input type="file" id="scenery-upload" class="hidden-file-input" accept="image/*"></div></div>
                     </div>
 
-                    <!-- Right Column -->
                     <div class="lg:col-span-1"><div class="bg-gray-750 p-6 rounded-lg shadow-lg"><h2 class="text-2xl font-semibold mb-4 text-violet-300">Dice Tower</h2><div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4"><button class="dice-btn bg-gray-650 hover:bg-gray-600 p-4 rounded-lg" data-die="4">d4</button><button class="dice-btn bg-gray-650 hover:bg-gray-600 p-4 rounded-lg" data-die="6">d6</button><button class="dice-btn bg-gray-650 hover:bg-gray-600 p-4 rounded-lg" data-die="8">d8</button><button class="dice-btn bg-gray-650 hover:bg-gray-600 p-4 rounded-lg" data-die="10">d10</button><button class="dice-btn bg-gray-650 hover:bg-gray-600 p-4 rounded-lg" data-die="12">d12</button><button class="dice-btn bg-gray-650 hover:bg-gray-600 p-4 rounded-lg" data-die="20">d20</button></div><div id="dice-result" class="bg-gray-850 p-4 rounded-lg text-center h-24 flex items-center justify-center"><span class="text-4xl font-bold">--</span></div><div id="dice-history" class="mt-4 h-48 overflow-y-auto bg-gray-850 p-2 rounded"><p class="text-gray-400 text-sm text-center">Roll history...</p></div></div></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Modals -->
     <div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50"><div class="bg-gray-750 p-8 rounded-lg text-center"><div class="lds-dual-ring mx-auto"></div><p id="loading-text" class="text-lg mt-4">Saving image locally...</p></div></div>
     <div id="notification-toast" class="fixed bottom-5 right-5 p-4 rounded-lg text-white z-[100] opacity-0 transition-opacity duration-300"></div>
     <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50">
@@ -176,24 +164,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, getDoc, arrayUnion, arrayRemove, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        // Firebase Storage is no longer used.
-
-        // --- Vercel Deployment: Firebase Configuration ---
-        // 1. Create a Firebase project at https://console.firebase.google.com/
-        // 2. In your project, go to Project Settings (gear icon) -> General tab.
-        // 3. Under "Your apps", create a new Web app ('</>').
-        // 4. After creating the app, copy the firebaseConfig object provided and paste it here.
-        // 5. In the Firebase console, go to Authentication -> Sign-in method and enable "Anonymous".
-        // 6. Go to Firestore Database -> Rules and set them to allow reads and writes (for development).
-        //    NOTE: Firebase Storage is no longer required for this version.
-const firebaseConfig = {
-  apiKey: "AIzaSyDwh33WelKfN-XXuEfrIq4gZVFypNKo3n0",
-  authDomain: "skyednd-9917c.firebaseapp.com",
-  projectId: "skyednd-9917c",
-  storageBucket: "skyednd-9917c.firebasestorage.app",
-  messagingSenderId: "597391046245",
-  appId: "1:597391046245:web:9ad25bd70e55018c42388c"
-};
+        
+        const firebaseConfig = {
+          apiKey: "AIzaSyDwh33WelKfN-XXuEfrIq4gZVFypNKo3n0",
+          authDomain: "skyednd-9917c.firebaseapp.com",
+          projectId: "skyednd-9917c",
+          storageBucket: "skyednd-9917c.firebasestorage.app",
+          messagingSenderId: "597391046245",
+          appId: "1:597391046245:web:9ad25bd70e55018c42388c"
+        };
 
         const appId = 'dnd-campaign-1';
         let db, auth, userId, currentCharacterId = null;
@@ -215,7 +194,6 @@ const firebaseConfig = {
                 onAuthStateChanged(auth, user => {
                     if (user) {
                         userId = user.uid;
-                        // Don't auto-load a character. User must select one.
                         listenToCharacters(); 
                         listenToNpcs(); 
                         listenToStoryboard(); 
@@ -273,7 +251,6 @@ const firebaseConfig = {
             if (e.target.id === 'image-modal') { closeImageModal(); }
         });
 
-        // --- View & Data Listeners ---
         function switchView(view) {
             if (view === 'player') {
                 document.getElementById('character-selection-view').style.display = 'block';
@@ -282,7 +259,7 @@ const firebaseConfig = {
                 document.getElementById('dm-view').classList.add('hidden');
                 document.getElementById('player-view-btn').classList.add('bg-violet-600');
                 document.getElementById('dm-view-btn').classList.remove('bg-violet-600');
-            } else { // dm view
+            } else {
                 document.getElementById('character-selection-view').style.display = 'none';
                 document.getElementById('character-editing-view').classList.add('hidden');
                  document.getElementById('character-editing-view').classList.remove('grid');
@@ -318,7 +295,6 @@ const firebaseConfig = {
                     const charId = docSnap.id;
                     const charImgData = localStorage.getItem(`image-char-${charId}`);
                     
-                    // Populate DM HUD
                     const avatarHtml = charImgData ? `<img src="${charImgData}" class="h-12 w-12 rounded-full object-cover cursor-pointer char-avatar">` : `<div class="h-12 w-12 rounded-full bg-gray-600 flex items-center justify-center text-xs text-center p-1">No Img</div>`;
                     const inventoryHtml = char.inventory?.length ? char.inventory.map((item, index) => `<div class="inventory-item text-xs"><span class="truncate pr-2" title="${item}">${item}</span><button class="delete-inventory-item-dm-btn delete-btn" data-id="${charId}" data-index="${index}">&times;</button></div>`).join('') : '<p class="text-xs text-gray-400">Empty</p>';
                     hud.innerHTML += `<div class="bg-gray-850 p-4 rounded-lg">
@@ -347,7 +323,6 @@ const firebaseConfig = {
                         </details>
                     </div>`;
 
-                    // Populate Player Selection List
                     const selectionButton = document.createElement('button');
                     selectionButton.className = 'w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition duration-300';
                     selectionButton.textContent = `${char.name} - ${char.race} ${char.class}`;
@@ -430,7 +405,7 @@ const firebaseConfig = {
         
         async function handleImageUpload(file, localStorageKey) {
             if (!file) return;
-            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            if (file.size > 5 * 1024 * 1024) {
                 showNotification("Image file is too large (max 5MB). Local storage has limits.", true);
                 return;
             }
@@ -470,7 +445,6 @@ const firebaseConfig = {
 
         async function resetAllData() {
             try {
-                // Clear Firestore data
                 const collectionsToDelete = ['characters', 'npcs'];
                 for (const coll of collectionsToDelete) {
                     const collRef = collection(db, `artifacts/${appId}/public/data/${coll}`);
@@ -487,20 +461,19 @@ const firebaseConfig = {
                 localStorage.removeItem(`image-scene-${appId}`);
                 showNotification("All campaign data has been reset.");
                 window.location.reload();
-            } catch (error)
+            } catch (error) {
                 console.error("Error resetting data:", error);
                 showNotification("Failed to reset data.", true);
             }
         }
         
-        // --- Event Listeners ---
         document.getElementById('player-view-btn').addEventListener('click', () => switchView('player'));
         document.getElementById('dm-view-btn').addEventListener('click', () => switchView('dm'));
         document.getElementById('back-to-selection-btn').addEventListener('click', () => switchView('player'));
         
         document.getElementById('create-new-char-btn').addEventListener('click', () => {
-            currentCharacterId = crypto.randomUUID(); // Generate a new ID for the character
-            updatePlayerForm({}); // Clear the form
+            currentCharacterId = crypto.randomUUID();
+            updatePlayerForm({});
             showEditingView();
         });
 
