@@ -129,7 +129,7 @@
     </div>
 
     <!-- Modals -->
-    <div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50"><div class="bg-gray-750 p-8 rounded-lg text-center"><div class="lds-dual-ring mx-auto"></div><p id="loading-text" class="text-lg mt-4">Uploading...</p></div></div>
+    <div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50"><div class="bg-gray-750 p-8 rounded-lg text-center"><div class="lds-dual-ring mx-auto"></div><p id="loading-text" class="text-lg mt-4">Saving image locally...</p></div></div>
     <div id="notification-toast" class="fixed bottom-5 right-5 p-4 rounded-lg text-white z-[100] opacity-0 transition-opacity duration-300"></div>
     <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50">
         <div class="bg-gray-750 p-8 rounded-lg text-center shadow-xl">
@@ -146,30 +146,53 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, getDoc, arrayUnion, arrayRemove, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'dnd-ui-default';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO", authDomain: "DEMO", projectId: "DEMO" };
-        let db, auth, userId, storage, currentCharacterId = null;
+const firebaseConfig = {
+  apiKey: "AIzaSyDwh33WelKfN-XXuEfrIq4gZVFypNKo3n0",
+  authDomain: "skyednd-9917c.firebaseapp.com",
+  projectId: "skyednd-9917c",
+  storageBucket: "skyednd-9917c.firebasestorage.app",
+  messagingSenderId: "597391046245",
+  appId: "1:597391046245:web:9ad25bd70e55018c42388c"
+};
+
+        const appId = 'dnd-campaign-1';
+        let db, auth, userId, currentCharacterId = null;
 
         const storyPrompts = [
             "The players awaken in a cart with no memory, a strange tattoo on their hands being their only clue...",
-            "A local lord hires the party to investigate why the dead are rising from the town cemetery...",
+            "A local drunkard hires the party to investigate why the dead are rising from the town cemetery...",
             "The players find a treasure map on a dying courier, but they are not the only ones who know of it...",
-            "A sudden magical plague sweeps through the capital, and the party is tasked with finding a mythical cure...",
             "The party is framed for a crime they didn't commit and must clear their names while on the run...",
-            "A child's ghost haunts the local inn, begging the players to find its lost toy, which holds a darker secret...",
-            "The players are hired to guard a caravan traveling through dangerous territory, but the real threat is already inside...",
-            "A powerful magical artifact is shattered, and the party must race against a doomsday cult to retrieve the pieces...",
-            "The annual Grand Tournament is in town, offering fame and fortune, but its organizers have a sinister agenda...",
-            "An ancient dragon, long thought dead, has reappeared, and the party is the only thing standing in its way..."
+            "The players are the sole survivors of a crashed starship on an uncharted alien planet that doesn't appear on any known starmap...",
+"A viral outbreak sweeps the city, reanimating the dead, and the party must find a cure while navigating the zombie-infested streets...",
+"A rogue A.I. tasks the party with protecting a bio-engineered child who holds the key to humanity's next evolutionary step...",
+"The players are a team of paranormal investigators filming a reality show in a remote town where the locals have started to go missing...",
+"A dying cyber-runner gives the party a data-chip, begging them to upload its contents to the corporate mainframe before the next network purge...",
+"The players awaken in a sealed CDC laboratory during a zombie apocalypse with a single, cryptic note on the door: 'Don't let it out.'...",
+"A corporate executive hires the party to steal a rival's prototype energy core, but they soon discover it powers a sentient combat android...",
+"The party is hired as security on a cargo freighter, only to discover the sealed container holds a dangerous, illegally captured xenomorph...",
+"The players are a team of elite thieves hired to pull off an impossible heist: breaking into the vault of a Las Vegas casino...",
+"A reclusive billionaire invites the party to a private island for a 'game,' only for them to realize they are the ones being hunted...",
+"As members of a planetary survey team, the players discover an ancient alien artifact that begins to warp reality around them...",
+"The players are a squad of cybernetically-enhanced operatives framed for a corporate assassination, now on the run in a futuristic metropolis...",
+"The party are the last survivors in a fortified shopping mall, but supplies are low and a massive horde of undead is closing in...",
+"Each player receives a cryptic email from an anonymous source, pointing them toward a hidden cache of blackmail material on a powerful CEO...",
+"A fissure opens in the earth, revealing an ancient, underground city that was thought to be a myth, and the party is the first to explore it...",
+"A friendly dragon seeks out the party, pleading with them to rescue its stolen eggs from a powerful and cruel warlord...",
+"The party is invited to a grand tournament where the winner is granted a single wish, but contestants keep disappearing...",
+"The party's car breaks down, forcing them to take shelter in an abandoned hospital that is notoriously haunted by its former patients...",
+"A powerful archmage hires the party to venture into a forbidden library to retrieve a book that was never meant to be read...",
+"The party must venture into the Shadowfell to reclaim the stolen shadow of the kingdom's beloved queen...",
         ];
 
         async function initialize() {
             try {
                 const app = initializeApp(firebaseConfig);
-                db = getFirestore(app); auth = getAuth(app); storage = getStorage(app);
+                db = getFirestore(app); 
+                auth = getAuth(app); 
+                
                 onAuthStateChanged(auth, user => {
                     if (user) {
                         userId = user.uid;
@@ -177,9 +200,16 @@
                         listenToCharacters(); listenToNpcs(); listenToStoryboard(); listenToScene(); listenToDmNotes();
                     }
                 });
-                if (typeof __initial_auth_token !== 'undefined') await signInWithCustomToken(auth, __initial_auth_token);
-                else await signInAnonymously(auth);
-            } catch (e) { console.error("Firebase init failed:", e); showNotification("Connection to database failed.", true); }
+
+                await signInAnonymously(auth);
+            } catch (e) { 
+                console.error("Firebase init failed:", e); 
+                if (e.message.includes("API key not valid")) {
+                    showNotification("Firebase config is not valid. Please add your own API keys.", true);
+                } else {
+                    showNotification("Connection to database failed.", true);
+                }
+            }
         }
 
         function showNotification(message, isError = false) {
@@ -210,7 +240,6 @@
             hideConfirmModal();
         });
         document.getElementById('confirm-modal-cancel-btn').addEventListener('click', hideConfirmModal);
-
 
         // --- View & Data Listeners ---
         function switchView(view) {
@@ -261,15 +290,16 @@
         const listenToDmNotes = () => listenToDoc(`artifacts/${appId}/public/data/dmNotes/main`, 'dm-notes-textarea');
         
         function listenToScene() {
-            onSnapshot(doc(db, `artifacts/${appId}/public/data/scene/main`), docSnap => {
-                const url = docSnap.exists() ? docSnap.data().url : null;
-                document.getElementById('scenery-container').innerHTML = url ? `<img src="${url}" class="w-full h-full object-contain rounded-lg">` : `<span class="text-gray-400">Upload a scene...</span>`;
-            });
+            // Scene image now comes from local storage
+            const sceneImgData = localStorage.getItem(`image-scene-${appId}`);
+            document.getElementById('scenery-container').innerHTML = sceneImgData ? `<img src="${sceneImgData}" class="w-full h-full object-contain rounded-lg">` : `<span class="text-gray-400">Upload a scene...</span>`;
         }
         
         function updatePlayerForm(char) {
             Object.keys(char).forEach(key => { const el = document.getElementById(`char-${key}`); if (el) el.value = char[key]; });
-            document.getElementById('illustration-container').innerHTML = char.imageUrl ? `<img src="${char.imageUrl}" class="w-full h-full object-cover rounded-lg">` : `<span class="text-gray-400">Your hero awaits...</span>`;
+            // Character image now comes from local storage
+            const charImgData = localStorage.getItem(`image-char-${currentCharacterId}`);
+            document.getElementById('illustration-container').innerHTML = charImgData ? `<img src="${charImgData}" class="w-full h-full object-cover rounded-lg">` : `<span class="text-gray-400">Your hero awaits...</span>`;
         }
         
         async function saveCharacter(e) {
@@ -303,16 +333,32 @@
 
         const updateStat = (collectionName, id, stat, value) => updateDoc(doc(db, `artifacts/${appId}/public/data/${collectionName}`, id), { [stat]: parseInt(value) });
         
-        async function handleImageUpload(file, storagePath, docPath) {
+        async function handleImageUpload(file, localStorageKey) {
             if (!file) return;
-            document.getElementById('loading-modal').classList.remove('hidden');
-            const storageRef = ref(storage, storagePath);
-            await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(storageRef);
-            await setDoc(doc(db, docPath), { url: downloadURL }, { merge: true });
-            if(docPath.includes('characters')) await updateDoc(doc(db, docPath), { imageUrl: downloadURL });
-            document.getElementById('loading-modal').classList.add('hidden');
-            showNotification("Image uploaded!");
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                showNotification("Image file is too large (max 5MB). Local storage has limits.", true);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    localStorage.setItem(localStorageKey, e.target.result);
+                    showNotification("Image saved locally!");
+
+                    // Manually update the view since we are not using a reactive Firestore trigger
+                    if (localStorageKey.startsWith('image-char-')) {
+                        document.getElementById('illustration-container').innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover rounded-lg">`;
+                    } else if (localStorageKey.startsWith('image-scene-')) {
+                        document.getElementById('scenery-container').innerHTML = `<img src="${e.target.result}" class="w-full h-full object-contain rounded-lg">`;
+                    }
+
+                } catch (error) {
+                    console.error("Error saving to localStorage:", error);
+                    showNotification("Could not save image. Browser storage might be full.", true);
+                }
+            };
+            reader.readAsDataURL(file);
         }
         
         async function addInventoryItem(characterId, item) {
@@ -330,13 +376,15 @@
         }
 
         async function resetAllData() {
-            console.log("Resetting all data...");
             try {
+                // Clear Firestore data
                 const collectionsToDelete = ['characters', 'npcs'];
                 for (const coll of collectionsToDelete) {
                     const collRef = collection(db, `artifacts/${appId}/public/data/${coll}`);
                     const snapshot = await getDocs(collRef);
                     for (const docSnap of snapshot.docs) {
+                        // Also clear related local storage for character images
+                        localStorage.removeItem(`image-char-${docSnap.id}`);
                         await deleteDoc(docSnap.ref);
                     }
                 }
@@ -344,7 +392,14 @@
                 for (const docPath of docsToDelete) {
                      await deleteDoc(doc(db, `artifacts/${appId}/public/data/${docPath}`));
                 }
+
+                // Clear local storage data
+                localStorage.removeItem(`image-scene-${appId}`);
+                localStorage.removeItem(`dnd-char-id-${appId}`);
+
                 showNotification("All campaign data has been reset.");
+                // Reload to clear state
+                window.location.reload();
             } catch (error) {
                 console.error("Error resetting data:", error);
                 showNotification("Failed to reset data.", true);
@@ -358,11 +413,11 @@
         document.getElementById('add-npc-form').addEventListener('submit', saveNpc);
         document.getElementById('story-output').addEventListener('blur', saveStoryboard);
         document.getElementById('dm-notes-textarea').addEventListener('blur', saveDmNotes);
-        document.getElementById('char-image-upload').addEventListener('change', e => handleImageUpload(e.target.files[0], `public/${appId}/characters/${currentCharacterId}/portrait.png`, `artifacts/${appId}/public/data/characters/${currentCharacterId}`));
-        document.getElementById('scenery-upload').addEventListener('change', e => handleImageUpload(e.target.files[0], `public/${appId}/scene/main.png`, `artifacts/${appId}/public/data/scene/main`));
+        document.getElementById('char-image-upload').addEventListener('change', e => handleImageUpload(e.target.files[0], `image-char-${currentCharacterId}`));
+        document.getElementById('scenery-upload').addEventListener('change', e => handleImageUpload(e.target.files[0], `image-scene-${appId}`));
         document.getElementById('init-story-btn').addEventListener('click', () => { document.getElementById('story-output').value = storyPrompts[Math.floor(Math.random() * storyPrompts.length)]; saveStoryboard({target: document.getElementById('story-output')}); });
         document.getElementById('reset-all-data-btn').addEventListener('click', () => {
-            showConfirmModal('Reset All Data?', 'This will permanently delete all characters, NPCs, and story progress.', resetAllData);
+            showConfirmModal('Reset All Data?', 'This will permanently delete all characters, NPCs, story progress, and locally stored images.', resetAllData);
         });
 
         document.querySelectorAll('.dice-btn').forEach(b => b.addEventListener('click', e => {
